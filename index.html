@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Chatbot</title>
+    <style>
+        /* Gradient background */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        #chat-container {
+            width: 600px;
+            max-width: 90%;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        #chat-container h1 {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        #chatbox {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 75%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .user {
+            background-color: #cce5ff;
+            color: #004085;
+            align-self: flex-end;
+            text-align: right;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .bot {
+            background-color: #d4edda;
+            color: #155724;
+            align-self: flex-start;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #input-area {
+            display: flex;
+            padding: 15px;
+            background-color: #fafafa;
+            border-top: 1px solid #ddd;
+        }
+
+        #message {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 25px;
+            border: 1px solid #ccc;
+            outline: none;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        #message:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+
+        button {
+            margin-left: 10px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: none;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #764ba2, #667eea);
+        }
+
+        /* Smooth fade-in animation for messages */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar styling */
+        #chatbox::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chatbox::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h1>AI Chatbot</h1>
+        <div id="chatbox"></div>
+        <div id="input-area">
+            <input type="text" id="message" placeholder="Type your message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            const chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML += `<div class="message user"><b>You:</b> ${message}</div>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+            const data = await response.json();
+            chatbox.innerHTML += `<div class="message bot"><b>Bot:</b> ${data.response}</div>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            messageInput.value = '';
+            messageInput.focus();
+        }
+
+        document.getElementById('message').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
